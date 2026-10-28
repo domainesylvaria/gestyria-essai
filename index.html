@@ -7,8 +7,8 @@
        Un script malveillant ne pourrait donc pas envoyer les clés et jetons enregistrés ailleurs. Pas d'objet, de formulaire ni de base modifiable. -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline' data:; font-src 'self' data:; img-src 'self' data: blob: https:; media-src 'self' data: blob:; frame-src https://www.google.com https://maps.google.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://sheets.googleapis.com https://generativelanguage.googleapis.com https://api.openai.com https://api.github.com; object-src 'none'; base-uri 'none'; form-action 'none'" />
   <meta name="referrer" content="no-referrer" />
-  <title>Gestyria v266</title>
-  <meta name="application-name" content="Gestyria v266" />
+  <title>Gestyria v267</title>
+  <meta name="application-name" content="Gestyria v267" />
   
   <!-- Bibliothèques intégrées au fichier (dossier vendor/) : aucune dépendance à un service en ligne -->
   <style data-sylvaria>
@@ -8589,7 +8589,7 @@ footer{background:#111}
     "src/core/app.ts"() {
       "use strict";
       APP_NAME = "Gestyria";
-      APP_VERSION = "266";
+      APP_VERSION = "267";
       APP_VERSION_LABEL = `v${APP_VERSION}`;
       APP_FULL_NAME = `${APP_NAME} ${APP_VERSION_LABEL}`;
     }
@@ -64073,6 +64073,15 @@ ${article.text || "(vide)"}` : ""
     }
     if (buffer) handle(buffer);
   }
+  async function apiDetail(res2) {
+    try {
+      const json4 = JSON.parse(await res2.clone().text());
+      const msg = String(json4?.error?.message || "").replace(/(AIza|sk-)[A-Za-z0-9_-]+/g, "\u2026").slice(0, 220);
+      return msg ? ` D\xE9tail : \xAB ${msg} \xBB (erreur ${res2.status}).` : ` (erreur ${res2.status}).`;
+    } catch {
+      return ` (erreur ${res2.status}).`;
+    }
+  }
   async function askGemini(key, system, messages, maxOutputTokens, onText) {
     const send = (model, thinking) => fetch(`${GEMINI_BASE}/${model}:streamGenerateContent?alt=sse`, {
       method: "POST",
@@ -64102,7 +64111,7 @@ ${article.text || "(vide)"}` : ""
     }
     if (!res2) throw new Error("Connexion impossible : v\xE9rifiez internet.");
     if (!res2.ok) {
-      if (res2.status === 400 || res2.status === 401 || res2.status === 403) throw new Error("Cl\xE9 refus\xE9e : v\xE9rifiez-la (bouton \xAB Changer de cl\xE9 \xBB).");
+      if (res2.status === 400 || res2.status === 401 || res2.status === 403) throw new Error(`Cl\xE9 refus\xE9e par Google : v\xE9rifiez-la (bouton \xAB Changer de cl\xE9 \xBB).${await apiDetail(res2)}`);
       if (res2.status === 429) throw new Error("Limite gratuite atteinte : r\xE9essayez dans une minute (ou demain si la limite du jour est \xE9puis\xE9e).");
       if (res2.status === 404) throw new Error("Aucun mod\xE8le Gemini disponible avec cette cl\xE9 : r\xE9essayez plus tard ou changez de cl\xE9.");
       throw new Error(`L'assistant n'a pas r\xE9pondu (erreur ${res2.status}).`);
@@ -64151,7 +64160,7 @@ ${article.text || "(vide)"}` : ""
     }
     if (!res2) throw new Error("Connexion impossible : v\xE9rifiez internet.");
     if (!res2.ok) {
-      if (res2.status === 401) throw new Error("Cl\xE9 refus\xE9e : v\xE9rifiez-la (bouton \xAB Changer de cl\xE9 \xBB).");
+      if (res2.status === 401) throw new Error(`Cl\xE9 refus\xE9e par OpenAI : v\xE9rifiez-la (bouton \xAB Changer de cl\xE9 \xBB).${await apiDetail(res2)}`);
       if (res2.status === 429) throw new Error("Limite atteinte ou cr\xE9dit \xE9puis\xE9 : v\xE9rifiez votre solde sur platform.openai.com (Settings > Billing), puis r\xE9essayez.");
       if (res2.status === 403) throw new Error("OpenAI refuse cette demande depuis votre compte ou votre pays : v\xE9rifiez votre compte sur platform.openai.com.");
       throw new Error(`L'assistant n'a pas r\xE9pondu (erreur ${res2.status}).`);
