@@ -6,8 +6,8 @@
   <!-- Politique de sécurité : l'application ne peut parler qu'à Google (connecteur, Sheets, Gemini) et GitHub (publication du site).
        Un script malveillant ne pourrait donc pas envoyer les clés et jetons enregistrés ailleurs. Pas d'objet, de formulaire ni de base modifiable. -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline' data:; font-src 'self' data:; img-src 'self' data: blob: https:; media-src 'self' data: blob:; frame-src https://www.google.com https://maps.google.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://sheets.googleapis.com https://generativelanguage.googleapis.com https://api.openai.com https://api.github.com; object-src 'none'; base-uri 'none'; form-action 'none'" />
-  <title>Gestyria v270</title>
-  <meta name="application-name" content="Gestyria v270" />
+  <title>Gestyria v271</title>
+  <meta name="application-name" content="Gestyria v271" />
   
   <!-- Bibliothèques intégrées au fichier (dossier vendor/) : aucune dépendance à un service en ligne -->
   <style data-sylvaria>
@@ -4931,6 +4931,9 @@ footer{background:#111}
   function setWriteGuard(guard) {
     writeGuard = guard;
   }
+  function writeAllowed(key) {
+    return !blockedByGuard(key);
+  }
   function blockedByGuard(key) {
     if (!writeGuard || writeGuard(key)) return false;
     try {
@@ -5228,7 +5231,12 @@ footer{background:#111}
         domaine_sylvaria_assets_v1: "profitability",
         domaine_sylvaria_site_content_v1: "website",
         domaine_sylvaria_site_library_v1: "website",
-        domaine_sylvaria_welcome_photos_v1: "welcomeBook"
+        domaine_sylvaria_welcome_photos_v1: "welcomeBook",
+        domaine_sylvaria_housekeeping_tasks_v1: "housekeeping",
+        domaine_sylvaria_meals_items_v1: "ingredients",
+        domaine_sylvaria_breakfast_ingredients_v1: "ingredients",
+        domaine_sylvaria_invoices_registry_v1: "invoicing",
+        domaine_sylvaria_contact_edits_v1: "contacts"
       };
       setWriteGuard(licenseAllowsWrite);
       try {
@@ -8242,7 +8250,7 @@ footer{background:#111}
         },
         setItem: (key, value) => {
           try {
-            localStorage.setItem(key, value);
+            safeSetItem(key, value);
           } catch (e) {
             console.warn("localStorage setItem failed:", e);
           }
@@ -8508,6 +8516,7 @@ footer{background:#111}
     }
   }
   function persist(next) {
+    if (!writeAllowed(TASKS_STORAGE_KEY)) return;
     tasks = next;
     safeSetItem(TASKS_STORAGE_KEY, JSON.stringify(next));
     notify4();
@@ -8588,7 +8597,7 @@ footer{background:#111}
     "src/core/app.ts"() {
       "use strict";
       APP_NAME = "Gestyria";
-      APP_VERSION = "270";
+      APP_VERSION = "271";
       APP_VERSION_LABEL = `v${APP_VERSION}`;
       APP_FULL_NAME = `${APP_NAME} ${APP_VERSION_LABEL}`;
     }
